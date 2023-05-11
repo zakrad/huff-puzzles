@@ -11,7 +11,28 @@
 
  #define function makeContract() payable returns(address)
 
+#define macro CREATE() = takes(0) returns(1) {
 
- #define macro MAIN() = takes(0) returns(0) {
-    
- }
+    0x6b620caffe60005260206000f3600052600c6014f3 0x00 mstore
+
+    0x15 0x0b 0x00 create
+
+}
+//0x3078636166666500000000000000000000000000000000000000000000000000
+//runtime 602060005260076020527f307863616666650000000000000000000000000000000000000000000000000060405260606000f3
+#define macro MAIN() = takes(0) returns(0) {
+
+    0x00 calldataload
+    0xE0 shr
+
+    __FUNC_SIG(makeContract) eq
+    makeContract jumpi
+
+    0x00 0x00 revert
+
+    makeContract:
+        CREATE()
+        0x00 mstore
+        0x20 0x00 return
+
+}
