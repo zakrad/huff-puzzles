@@ -10,7 +10,54 @@
 
 #define function sumArray(uint256[]) payable returns(uint256)
 
+#define macro SUMARRAY() = takes(0) returns(1) {
+
+    0x24 calldataload 0x00 eq   // return zero for empty array
+    end jumpi 
+
+    0x44 0x24                   // [0x24, 0x44]
+    calldataload                // [length, offset]
+      
+    0x00                        // [index(0), length, offset]
+
+    start jump
+    continue:
+        // if index == length end
+        eq 
+        end jumpi                   // [index(i), length, offset]
+        start:
+            // load from calldata
+            dup1 0x20 mul                    // [index(i), index(i), length, offset]
+            dup4 add                         // [index(i)+offset, index(i), length, offset]
+            calldataload                     // [array(i), index(i), length, offset]
+            // update memory
+            0x00 mload
+            add 
+            0x00 mstore                          // [index(i), length, offset]
+            // add to index
+            0x01 add                             // [index(i+1), length, offset]
+            dup2 dup2                            // [index(i+1), length, index(i+1), length, offset]
+            continue jump
+
+    end:
+        // pop pop pop
+        0x20 0x00 return
+}
+
 
 #define macro MAIN() = takes(0) returns(0) {
+
+    0x00 calldataload
+    0xE0 shr
+
+    __FUNC_SIG(sumArray) eq
+    sumArray jumpi
+
+    0x00 0x00 revert
+
+    sumArray:
+        SUMARRAY()
+        0x00 mstore
+        0x20 0x00 return
 
 }
