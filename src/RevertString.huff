@@ -10,8 +10,15 @@
  *
  *  The task is to write within the `MAIN` macro below, huff code that reverts (all the time) with the string error message `Only Huff`
 */
+//0x4f6e6c7920487566660000000000000000000000000000000000000000000000
+//0x09
 
 
 #define macro MAIN() = takes(0) returns(0) {
-    
+    0x4f6e6c7920487566660000000000000000000000000000000000000000000000
+    0x0000000000000000000000000000000000000000000000000000000000000009
+    0x20 0x00 mstore
+    0x20 mstore
+    0x40 mstore
+    0x60 0x00 revert
 }
