@@ -33,6 +33,8 @@
     sstore                             //[length]
     0x01 add                           //[newLength]
     0x00 sstore
+    0x00 0x00 return
+
  }
 
   #define macro POPP() = takes(0) returns(0) {
@@ -58,7 +60,7 @@
     0x00 eq
     end jumpi 
 
-    dup2 dup2 gt                       //[length, index]
+    dup2 swap1 gt                       //[length, index]
     continue jumpi
     __ERROR(OutOfBounds)
     0x00 mstore
@@ -68,8 +70,7 @@
         __ERROR(OutOfBounds)
         0x00 mstore
         0x04 0x00 revert
-    continue:
-        pop                                //[index]
+    continue:                             //[index]
         0x20 mul                           //[offset]
         0x20 0x00 sha3 add                 //[SlotToRead]
         sload                              //[value]
@@ -88,7 +89,7 @@
     0x00 eq
     end jumpi 
 
-    dup2 dup2 gt                       //[length, index, number]
+    dup2 swap1 gt                       //[length, index, number]
     continue jumpi
     __ERROR(OutOfBounds)
     0x00 mstore
@@ -98,8 +99,7 @@
         __ERROR(OutOfBounds)
         0x00 mstore
         0x04 0x00 revert
-    continue:
-        pop                                //[index, number]
+    continue:                               //[index, number]
         0x20 mul                           //[offset, number]
         0x20 0x00 sha3 add                 //[SlotToWrite, number]
         sstore                              //[]
@@ -132,7 +132,6 @@
     pushh:
         0x04 calldataload
         PUSHH()
-        0x00 0x00 return
     
     popp:
         POPP()
@@ -152,5 +151,4 @@
         0x04 calldataload
         0x24 calldataload
         WRITE()
-        0x00 0x00 return
  }
