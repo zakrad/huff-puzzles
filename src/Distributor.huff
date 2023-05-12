@@ -12,7 +12,51 @@
 
  #define function distribute(address[]) payable returns()
 
+ #define macro DISTRIBUTE() = takes(0) returns(0) {
+
+    0x24 calldataload 0x00 eq   // revert for empty array
+    rev jumpi 
+
+    0x44 0x24                   // [0x24, 0x44]
+    calldataload dup1           // [length, length, offset]
+    callvalue div               // [valueToSend, Length, offset]
+
+    0x00                        // [index(0), valueToSend, length, offset]
+    start jump
+    continue:
+        // if index == length end
+        eq 
+        end jumpi                   // [index(i), valueToSend, length, offset]
+        start:
+            // load from calldata
+            dup1 0x20 mul                    // [index(i)*0x20, index(i),valueToSend, length, offset]
+            dup5 add                         // [index(i)+offset, index(i), valueToSend, length, offset]
+            calldataload                     // [array(i), index(i), valueToSend, length, offset]
+            // send value
+            0x00 dup1 dup1 dup1 dup7 dup6 gas call pop pop  // [index(i), valueToSend, length, offset]
+            // add to index
+            0x01 add                             // [index(i+1), valueToSend, length, offset]
+            dup3 dup2                            // [index(i+1), length, index(i+1), valueToSend, length, offset]
+            continue jump
+
+
+    end:
+        0x00 0x00 return
+
+    rev:
+        0x00 0x00 revert
+
+ }
 
  #define macro MAIN() = takes(0) returns(0) {
-   
+    0x00 calldataload
+    0xE0 shr
+
+    __FUNC_SIG(distribute) eq
+    distribute jumpi
+
+    0x00 0x00 revert
+
+    distribute:
+        DISTRIBUTE()
  }
